@@ -1,5 +1,6 @@
 import pygame
 from .screens import *
+import threading
 
 
 class Game:
@@ -35,10 +36,17 @@ class Game:
                             pygame.mouse.get_pos()):
                         self.start_main(self.menu_screen.get_selected())
                         self.screen = 1
-                if self.screen == 1:
+                elif self.screen == 1:
                     res = self.main_screen.check_clicks(pygame.mouse.get_pos())
                     if res == 0:
                         self.screen = 0
+                    if res == 1:
+                        self.screen = 2
+                        if self.main_screen.run_algo(self.WIN):
+                            self.main_screen.set_title("THERE EXISTS A PATH")
+                        else:
+                            self.main_screen.set_title("PATH NOT FOUND")
+                        self.screen = 1
             elif pygame.mouse.get_pressed()[2]:
                 if self.screen == 1:
                     res = self.main_screen.check_clicks(
@@ -54,7 +62,9 @@ class Game:
         run = True
         while run:
             self.clock.tick(self.framerate)
-            self.draw()
+            t1 = threading.Thread(self.draw())
+            t1.start()
             run = self.handle_events()
             pygame.display.update()
+        t1.join()
         pygame.quit()
