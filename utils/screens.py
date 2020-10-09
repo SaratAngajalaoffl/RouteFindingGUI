@@ -77,6 +77,38 @@ class MainScreen:
             current.make_path()
             self.draw_algo(surface)
 
+    def DFS_Util(self, node, path_set, surface):
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        if node != self.start:
+            node.make_closed()
+            self.draw_algo(surface)
+
+        for neighbor in node.get_neighbors():
+
+            if neighbor == self.end:
+                path_set[neighbor] = node
+                self.draw_path(path_set, self.end, surface)
+                return True
+
+            if neighbor not in path_set and neighbor.get_color() != LIGHT_YELLOW:
+                self.draw_algo(surface)
+                path_set[neighbor] = node
+                if self.DFS_Util(neighbor, path_set, surface):
+                    return True
+
+        return False
+
+    def DFS_Algortithm(self, surface):
+        self.update_neighbors()
+        path_set = {}
+
+        return self.DFS_Util(self.start, path_set, surface)
+
     def BFS_Algortihm(self, surface):
         self.update_neighbors()
         open_list = []
@@ -97,7 +129,7 @@ class MainScreen:
                         self.draw_path(path_set, goal, surface)
                         return True
                     else:
-                        neighbor.set_color(SKY_BLUE)
+                        neighbor.make_open()
                         self.draw_algo(surface)
                         open_list.append(neighbor)
             self.draw_algo(surface)
@@ -167,6 +199,8 @@ class MainScreen:
                 return self.Astar_Algorithm(surface)
             elif self.algorithm == "BFS":
                 return self.BFS_Algortihm(surface)
+            elif self.algorithm == "DFS":
+                return self.DFS_Algortithm(surface)
         else:
             print("Start and end Not selected")
             pygame.quit()
