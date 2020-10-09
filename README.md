@@ -9,3 +9,5 @@
 3)A* ALGORITHM
 
 ## Feel free to change the values in /utils/locals.py and play around with different values.
+
+## Also feel free to add any algorithms if you are interested.
