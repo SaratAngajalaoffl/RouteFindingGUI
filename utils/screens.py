@@ -10,10 +10,10 @@ import sys
 class MenuScreen:
 
     def __init__(self):
-        self.options = [Button(RES/2, 4*RES/10, RES/3, RES/20,
-                               WHITE, BLACK, 'freesansbold.ttf', 15, "A* ALGORITHM"), Button(RES/2, 5*RES/10, RES/3, RES/20,
-                                                                                             WHITE, BLACK, 'freesansbold.ttf', 15, "DIJKSTRA ALGORITHM"), Button(RES/2, 6*RES/10, RES/3, RES/20,
-                                                                                                                                                                 WHITE, BLACK, 'freesansbold.ttf', 15, "PRIMS ALGORITHM")]
+        self.options = [Button(RES/2, 4*RES/10, RES/2, RES/20,
+                               WHITE, BLACK, 'freesansbold.ttf', 15, "DFS"), Button(RES/2, 5*RES/10, RES/2, RES/20,
+                                                                                    WHITE, BLACK, 'freesansbold.ttf', 15, "BFS"), Button(RES/2, 6*RES/10, RES/2, RES/20,
+                                                                                                                                         WHITE, BLACK, 'freesansbold.ttf', 15, "A* ALGORITHM")]
         self.header = Text(RES/2, RES/10, RES/3, RES/10,
                            WHITE, 'freesansbold.ttf', 30, "SELECT ALGORITHM")
         self.start = Button(RES/2, 8*RES/10, RES/3, RES/20,
@@ -46,8 +46,9 @@ class MainScreen:
 
     def __init__(self, algorithm):
         self.algorithm = algorithm
-        self.header = Text(RES/2, RES/10, RES/3, RES/10,
-                           WHITE, 'freesansbold.ttf', 30, algorithm)
+        self.header = Text(RES/2, RES/20, RES/3, RES/10,
+                           WHITE, 'freesansbold.ttf', 20, algorithm)
+        self.instructions = None
         self.menu_button = Button(3*RES/5, 9*RES/10, RES/6, RES/20,
                                   WHITE, BLACK, 'freesansbold.ttf', 15, "MENU")
         self.start_button = Button(2*RES/5, 9*RES/10, RES/6, RES/20,
@@ -71,10 +72,39 @@ class MainScreen:
                 j.update_neighbors(self.nodes)
 
     def draw_path(self, path_set, current, surface):
-        while current in path_set:
+        while current in path_set and current != self.start:
             current = path_set[current]
             current.make_path()
             self.draw_algo(surface)
+
+    def BFS_Algortihm(self, surface):
+        self.update_neighbors()
+        open_list = []
+        path_set = {}
+
+        current = self.start
+        goal = self.end
+
+        while current != goal:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+            for neighbor in current.get_neighbors():
+                if neighbor not in open_list and neighbor.get_color() != LIGHT_YELLOW and neighbor != self.start:
+                    path_set[neighbor] = current
+                    if neighbor == goal:
+                        self.draw_path(path_set, goal, surface)
+                        return True
+                    else:
+                        neighbor.set_color(SKY_BLUE)
+                        self.draw_algo(surface)
+                        open_list.append(neighbor)
+            self.draw_algo(surface)
+            current = open_list.pop(0)
+            current.make_closed()
+
+        return False
 
     def Astar_Algorithm(self, surface):
         self.update_neighbors()
@@ -135,6 +165,8 @@ class MainScreen:
         if self.start and self.end:
             if self.algorithm == "A* ALGORITHM":
                 return self.Astar_Algorithm(surface)
+            elif self.algorithm == "BFS":
+                return self.BFS_Algortihm(surface)
         else:
             print("Start and end Not selected")
             pygame.quit()
@@ -168,13 +200,23 @@ class MainScreen:
                     self.end = None
 
     def set_title(self, title):
-        self.header = Text(RES/2, RES/10, RES/3, RES/10,
-                           WHITE, 'freesansbold.ttf', 30, title)
+        self.header = Text(RES/2, RES/20, RES/3, RES/20,
+                           WHITE, 'freesansbold.ttf', 20, title)
 
     def draw(self, surface):
         self.header.draw(surface)
         self.menu_button.draw(surface)
         self.start_button.draw(surface)
+        if not self.start:
+            self.instructions = Text(RES/2, 2*RES/20, RES/3, RES/20,
+                                     WHITE, 'freesansbold.ttf', 20, "Select the Start Node")
+        elif not self.end:
+            self.instructions = Text(RES/2, 2*RES/20, RES/3, RES/20,
+                                     WHITE, 'freesansbold.ttf', 20, "Select the End Node")
+        else:
+            self.instructions = Text(RES/2, 2*RES/20, RES/3, RES/20,
+                                     WHITE, 'freesansbold.ttf', 20, "Select the Barriers")
+        self.instructions.draw(surface)
         self.draw_grid(surface)
         for i in self.nodes:
             for j in i:

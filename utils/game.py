@@ -21,7 +21,7 @@ class Game:
         self.WIN.fill(self.bg)
         if self.screen == 0:
             self.menu_screen.draw(self.WIN)
-        elif self.screen == 1:
+        elif self.screen == 1 or self.screen == 3:
             self.main_screen.draw(self.WIN)
 
     def handle_events(self):
