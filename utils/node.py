@@ -48,7 +48,8 @@ class Node:
         self.color = SKY_BLUE
 
     def make_closed(self):
-        self.color = LIGHT_YELLOW
+        if self.color != PURPLE:
+            self.color = LIGHT_YELLOW
 
     def make_path(self):
         self.color = PURPLE

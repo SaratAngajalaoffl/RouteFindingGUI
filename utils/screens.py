@@ -84,10 +84,6 @@ class MainScreen:
                 pygame.quit()
                 sys.exit()
 
-        if node != self.start:
-            node.make_closed()
-            self.draw_algo(surface)
-
         for neighbor in node.get_neighbors():
 
             if neighbor == self.end:
@@ -96,11 +92,14 @@ class MainScreen:
                 return True
 
             if neighbor not in path_set and neighbor.get_color() != LIGHT_YELLOW:
+                neighbor.make_open()
                 self.draw_algo(surface)
                 path_set[neighbor] = node
                 if self.DFS_Util(neighbor, path_set, surface):
                     return True
-
+        if node != self.start:
+            node.make_closed()
+            self.draw_algo(surface)
         return False
 
     def DFS_Algortithm(self, surface):
